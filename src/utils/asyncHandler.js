@@ -9,6 +9,7 @@ const asyncHandler = (requestHandler) => {
                 error: error.message || "An unexpected error occurred"
             });
         });
+}    
 }/*const asyncHandler = (fn) => async(req,res,next) => {
     try {
         await fn(req, res, next);
