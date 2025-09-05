@@ -9,7 +9,7 @@ const asyncHandler = (requestHandler) => {
                     message: "Internal Server Error",
                     error: error.message || "An unexpected error occurred"
                 });
-            });
+            }); 
     };
 };
 

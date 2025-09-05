@@ -5,30 +5,34 @@ import ApiResponse from "../utils/ApiResponse.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"   
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { userName, fullName, email, password } = req.body;
+    const { username, fullname, email, password } = req.body;
     console.log("Email:", email);
     if (
-        [fullName, email, userName, password].some(
+        [fullname, email, username, password].some(
             (field) => typeof field !== "string" || field.trim() === ""
         )
     ) {
         throw new ApiError(400, "All fields are required");
     }
     const existedUser = await User.findOne({
-        $or : [{username: userName},{email}]
+        $or : [{username: username},{email}]
     })
 
     if(existedUser){
         throw new ApiError(409, "User with same email or username Already Exits")
     }
-    const avatarLocalPath = req.files?.avatar[0]?.path
-    const coverImageLocalPath = req.files?.coverImage?.[0]?.path
-    if(!avatarLocalPath){
-        throw new ApiError(400, "Avatar is required")
+console.log("BODY:", req.body);
+console.log("FILES:", req.files);
+
+    if (!req.files || !req.files.avatar || !req.files.avatar[0]) {
+        throw new ApiError(400, "Avatar file is required")
     }
-    if(!coverImageLocalPath){
-        throw new ApiError(400, "Avatar is required")
+    if (!req.files.coverImage || !req.files.coverImage[0]) {
+        throw new ApiError(400, "Cover image file is required")
     }
+
+    const avatarLocalPath = req.files.avatar[0].path
+    const coverImageLocalPath = req.files.coverImage[0].path
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
@@ -41,8 +45,8 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.create({
-        username : userName.toLowerCase(),
-        fullName,
+        username : username.toLowerCase(),
+        fullname,
         email,
         password,
         avatar : avatar.secure_url,
