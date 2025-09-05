@@ -1,5 +1,4 @@
 import mongoose , {Schema} from "mongoose";
-import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -67,9 +66,11 @@ userSchema.methods.isPasswordCorrect = async function(password){
 UserSchema.methods.generateAccessToken = function(){
     return jwt.sign(
         {
+            //this is payload data
             _id : this._id,
             username : this.username,
-            email : this.email
+            email : this.email,
+            fullname : this .fullname
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
