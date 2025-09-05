@@ -1,5 +1,5 @@
 import {v2 as cloudinary} from "cloudinary";
-import {fs} from "fs";
+import fs from "fs";
 
 cloudinary.config({
     cloud_name : process.env.CLOUD_NAME,
@@ -25,7 +25,4 @@ const uploadOnCloudinary = async (file,folder) =>{
     });
 }
    
-cloudinary.uploader.upload("sample.jpg"
-    ,{folder : "users"} ,
-    function(error, result)
-    {console.log(result, error); });
+export {uploadOnCloudinary};
