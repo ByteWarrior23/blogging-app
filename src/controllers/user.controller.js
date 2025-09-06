@@ -10,11 +10,11 @@ const generateAccessTokenandRefreshToken = async(userId) =>{
         if(!user){
             throw new ApiError(404, "User not found")
         }
-        const AccessToken = user.generateAccessToken()
+        const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
         user.refreshToken = refreshToken
         await user.save({validateBeforeSave : false}) //we need not check other conditions like password
-        return {AccessToken, refreshToken}
+        return {accessToken, refreshToken}
     }
     catch(error){
         throw new ApiError("500", "Something went wrong while generation access and refresh token")
@@ -87,7 +87,7 @@ console.log("FILES:", req.files);
 
 const loginUser = asyncHandler(async (req, res) => {
     const {email, password , username} = req.body;
-    if(!username || !email){
+    if(!username && !email){
         throw new ApiError(400, "Email or username is required")
     }
 
@@ -158,5 +158,5 @@ const logoutUser = asyncHandler(async (req, res) => {
 export { registerUser,
     loginUser,
     logoutUser
- };
+};
  
