@@ -1,8 +1,12 @@
 import {Router} from "express";
-import { registerUser } from "../controllers/user.controller.js";
+import { loginUser, registerUser } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import {ApiError} from "../utils/ApiError.js"
 import multer from "multer";
+import { loginUser } from "../controllers/user.controller.js";
+import { logoutUser } from "../controllers/user.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+
 const router = Router();
 
 // Multer error handling middleware
@@ -37,5 +41,9 @@ router.route("/register").post(
     handleMulterError,
     registerUser
 )
+
+router.route("/login").post(loginUser)
+
+router.route("/logout").post(verifyJWT, logoutUser)
 
 export default router;
