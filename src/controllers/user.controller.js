@@ -85,7 +85,6 @@ console.log("FILES:", req.files);
         )
 });
 
-
 const loginUser = asyncHandler(async (req, res) => {
     const {email, password , username} = req.body;
     if(!username && !email){
@@ -258,6 +257,75 @@ const updateProfilePictures = asyncHandler(async (req, res) => {
     }
     await user.save({validateBeforeSave : true})
     return res.status(200).json(new ApiResponse(200, "Profile pictures updated successfully"))
+});
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+    const {channelId} = req.params
+    if(!channelId){
+        throw new ApiError(400, "Channel ID is required")
+    }
+    const channel = await User.aggregate([
+        {
+            $match :{
+                username : channelId
+            }
+        },
+    {
+        $lookup : {
+            from : "subscriptions",
+            localField : "_id",
+            foreignField : "channel",
+            as : "subscribers"
+        }
+    },
+    {
+        $lookup :{
+            from : "subscriptions",
+            localField : "_id",
+            foreignField : "subscriber",
+            as : "channelsSubscribedTo"
+        }
+    },
+    {
+        $addFields : {
+            subscribersCount : {
+                $size : "$subscribers"
+            },
+            subscribedChannelsCount : {
+                $size : "$channelsSubscribedTo"     
+            },
+            isSubscribed : {
+                $cond : {
+                    if : {
+                        $in : [req.user?._id, "$subscribers.subscriber"]
+                    },
+                    then : true,
+                    else : false
+                }
+            }
+    }
+},
+    {
+        $project : {
+            fullname : 1,
+            username : 1,
+            email : 1,
+            avatar : 1,
+            coverImage : 1,
+            subscribersCount : 1,
+            subscribedChannelsCount : 1,
+            isSubscribed : 1
+        }
+}
+    ])
+
+    if (!channel || channel.length == 0){
+        throw new ApiError(404, "Channel not found")
+    }
+
+    return res.status(200).json(new ApiResponse(200, "Channel fetched successfully", channel[0]))
+    //console.log(channel[0]); 
+    //to see the output in console 1 contains only one entry 
 });
 
 export { registerUser,
