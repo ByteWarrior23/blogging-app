@@ -1,5 +1,16 @@
 import {Router} from "express";
-import { loginUser, registerUser } from "../controllers/user.controller.js";
+import {registerUser,
+    loginUser,
+    logoutUser,
+    changeCurrentUserPassword,
+    getCurrentUser,
+    refreshToken,
+    updateAccountDetails,
+    getWatchHistory,
+    updateProfilePictures,
+    getUserChannelProfile,
+    getWatchHistory} 
+    from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import {ApiError} from "../utils/ApiError.js"
 import multer from "multer";
@@ -44,5 +55,32 @@ router.route("/register").post(
 router.route("/login").post(loginUser)
 
 router.route("/logout").post(verifyJWT, logoutUser)
+
+router.get("/profile/:username", verifyJWT, getUserChannelProfile);
+router.get("/watch-history", verifyJWT, getWatchHistory);
+router.route("/change-password").put(verifyJWT, changeCurrentUserPassword)
+
+router.route("/me").get(verifyJWT, getCurrentUser)
+
+router.route("/refresh-token").get(refreshToken)
+
+router.route("/update-profile").patch(verifyJWT,
+    updateAccountDetails
+)
+
+router.route("/update-profile-pictures").put(verifyJWT,
+    upload.fields([
+        {
+            name : "avatar",
+            maxCount : 1
+        },{
+            name : "coverImage",
+            maxCount : 1
+        }
+    ]),
+    handleMulterError,
+    updateProfilePictures
+)
+
 
 export default router;
